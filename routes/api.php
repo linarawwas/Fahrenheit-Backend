@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\scraping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 /*
@@ -29,3 +31,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::post('logout', 'logout');
 });
+Route::controller(BookController::class)->group(function () {
+    Route::get('getall', '/books/getall');
+    // Route::post('finished', '/books/finished');
+    // Route::post('started', '/books/started');
+    // Route::get('readinghistory', '/books/finished');
+    // Route::get('currentlyreading', '/books/started');
+});
+Route::get('scrape-books', 'App\Http\Controllers\scraping@scrapeBooks');

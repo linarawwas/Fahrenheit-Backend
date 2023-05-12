@@ -12,18 +12,16 @@ class Book extends Model
     {
         return $this->belongsToMany(Category::class, 'book_category');
     }
-
-    public function finishedBooks()
+    public function users()
     {
-        return $this->belongsToMany(User::class, 'finished_books');
+        return $this->belongsToMany(User::class, 'reading_progress')
+                    ->withPivot('started_at', 'finished_at');
     }
 
-    public function currentlyReading()
+    public function notes()
     {
-        return $this->belongsToMany(User::class, 'currently_reading');
+        return $this->hasMany(Note::class);
     }
-    public function finishedBy()
-    {
-        return $this->belongsToMany(User::class, 'reading_records');
-    }
+    
+    
 }

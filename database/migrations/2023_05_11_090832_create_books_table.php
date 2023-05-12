@@ -18,6 +18,7 @@ class CreateBooksTable extends Migration
             $table->string('author');
             $table->string('url');
             $table->float('ratings')->default(0);
+            $table->string('language')->default('undetermined');
             $table->unsignedBigInteger('pg_id');
             $table->timestamps();
         });

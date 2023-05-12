@@ -3,14 +3,13 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
- 
+
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, SoftDeletes, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -18,20 +17,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = ['username', 'password', 'email', 'picture', 'reading_rank', 'streak'];
-
-
-    public function finishedBooks()
-    {
-        return $this->belongsToMany(FinishedBook::class, 'reading_records');
-    }
-    public function readingRecords()
-    {
-        return $this->hasOne(ReadingRecord::class);
-    }
-    public function currentlyReading()
-    {
-        return $this->hasMany(CurrentlyReading::class);
-    }
 
     public function notes()
     {
@@ -56,4 +41,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function books()
+    {
+        return $this->belongsToMany(Book::class, 'reading_progress')
+            ->withPivot('started_at', 'finished_at');
+    }
 }
