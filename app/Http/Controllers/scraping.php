@@ -11,7 +11,7 @@ class scraping extends Controller
     public function scrapeBooks(Request $request)
     {
         $startId = 1;
-        $endId = 100;
+        $endId = 6;
 
         $books = [];
 
@@ -44,7 +44,7 @@ class scraping extends Controller
                 $language = substr($language, strpos($language, 'Language: ') + 10);
 
                 // Get the URL of the book
-                $bookUrl = "https://www.gutenberg.org/ebooks/{$id}";
+                $bookUrl = "https://www.gutenberg.org/cache/epub/{$id}/pg{$id}-images.html";
                 // Add the book information to the array
                 $books[] = [
                     'pg_id' => $id,

@@ -14,12 +14,12 @@ class CreateBooksTable extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('pg_id');
             $table->string('title');
             $table->string('author');
+            $table->string('language')->default('Eng');
             $table->string('url');
             $table->float('ratings')->default(0);
-            $table->string('language')->default('undetermined');
-            $table->unsignedBigInteger('pg_id');
             $table->timestamps();
         });
     }

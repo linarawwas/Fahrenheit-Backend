@@ -16,12 +16,13 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['username', 'password', 'email', 'picture', 'reading_rank', 'streak'];
+    protected $fillable = ['username', 'password', 'email', 'picture'];
 
-    public function notes()
-    {
-        return $this->hasMany(Note::class);
-    }
+    protected $attributes = [
+        'reading_rank' => 0,
+        'current_reading_streak' => 0,
+        'longest_reading_streak' => 0,
+     ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -42,9 +43,39 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
+
+    public function readingStreaks()
+    {
+        return $this->hasMany(ReadingStreak::class);
+    }
+
     public function books()
     {
-        return $this->belongsToMany(Book::class, 'reading_progress')
-            ->withPivot('started_at', 'finished_at');
+        return $this->belongsToMany(Book::class, 'reading_progress');
+    }
+
+    public function readingProgress()
+    {
+        return $this->hasMany(ReadingProgress::class);
+    }
+
+    public function increaseReadingRankOnStart($book)
+    {
+        $this->reading_rank += 1;
+        $this->save();
+
+        return $this;
+    }
+
+    public function increaseReadingRankOnFinish($book)
+    {
+        $this->reading_rank += 2;
+        $this->save();
+
+        return $this;
     }
 }
