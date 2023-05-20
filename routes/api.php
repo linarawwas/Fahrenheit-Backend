@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ReadingProgressController;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\StreakController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\NotesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,20 +40,25 @@ Route::controller(AuthController::class)->group(function () {
 // This route retrieves all users and requires authentication with Sanctum
 Route::get('/users', [UserController::class, 'viewUsers'])->middleware('auth:sanctum')->middleware('auth:sanctum');
 
+// This route retrieves all users and requires authentication with Sanctum
+Route::get('/profile', [UserController::class, 'getAuthenticatedUser'])->middleware('auth:sanctum');
+
 // This route stores a new book in the database
-Route::post('/books', 'App\Http\Controllers\BookController@store');
+Route::post('/books', [BookController::class, 'store'])->middleware('auth:sanctum');;
 
 // This route retrieves all books from the database
-Route::get('/books', 'App\Http\Controllers\BookController@getall');
+Route::get('/books', [BookController::class, 'getall'])->middleware('auth:sanctum');
+Route::get('books/random', [BookController::class, 'getRandom'])->middleware('auth:sanctum');
+Route::put('/books/increment-rating',[BookController::class, 'incrementRating'])->middleware('auth:sanctum');
 
 // This route scrapes a website to get books and store them in the database
 Route::get('scrape-books', 'App\Http\Controllers\scraping@scrapeBooks');
 
 // This route starts a new reading progress for a user and a book
-Route::post('/books/{book}/start-reading', [ReadingProgressController::class, 'start_reading'])->middleware('auth:sanctum');
+Route::post('/readingprogress/start-reading', [ReadingProgressController::class, 'start_reading'])->middleware('auth:sanctum');
 
 // This route finishes a reading progress for a user and a book
-Route::post('/books/{book}/finish-reading', [ReadingProgressController::class, 'finish_reading'])->middleware('auth:sanctum');
+Route::put('/readingprogress/finish-reading', [ReadingProgressController::class, 'updateFinishedReading'])->middleware('auth:sanctum');;
 
 // This route retrieves the reading progress for a user and a book
 Route::get('/reading-progress', [ReadingProgressController::class, 'getReadingProgress'])->middleware('auth:sanctum');
@@ -62,7 +68,6 @@ Route::post('/read-today', [ReadingProgressController::class, 'readToday'])->mid
 
 // This route retrieves the current reading streak for the authenticated user
 Route::get('/reading-streak', [StreakController::class, 'getStreak'])->middleware('auth:sanctum');
-
 
 // Add a new note
 Route::post('/notes', [NotesController::class, 'addNote'])->middleware('auth:sanctum');

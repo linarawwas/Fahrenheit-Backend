@@ -61,7 +61,7 @@ class NotesController extends Controller
      */
     public function viewNotesByBook(Request $request, $bookId)
     {
-        $notes = Note::where('user_id', $request->user()->id)->where('book_id', $bookId)->get();
+        $notes = Note::where('book_id', $bookId)->get();
         return response()->json(['notes' => $notes]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Book extends Model
 {
@@ -14,14 +15,18 @@ class Book extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'reading_progress')
-                    ->withPivot('started_at', 'finished_at');
+        return $this->belongsToMany(User::class, 'reading_progress');
     }
 
     public function notes()
     {
         return $this->hasMany(Note::class);
     }
-    
+    public function getReadingDurationInDaysAttribute()
+    {
+        $startedAt = Carbon::parse($this->started_reading_at);
+        $finishedAt = Carbon::parse($this->finished_reading_at);
+        return $startedAt->diffInDays($finishedAt);
+    }
     
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\ReadingProgress;
 use App\Models\ReadingStreak;
 use App\Models\User;
 use Carbon\Carbon;
@@ -46,7 +47,7 @@ class ReadingProgressController extends Controller
         if ($streak->last_reading_day === $today) {
             return response()->json([
                 'message' => 'You have already read today!'
-            ], 400);
+            ]);
         }
 
         // Check if the last reading day was yesterday
@@ -73,11 +74,12 @@ class ReadingProgressController extends Controller
         ]);
     }
 
-    public function start_reading(Request $request, Book $book)
+    public function start_reading(Request $request)
     {
         $user = $request->user();
         $started_at = now();
-
+        $bookId = $request->input('book_id');
+        $book = Book::find($bookId);
         $user->books()->syncWithoutDetaching([
             $book->id => ['started_reading_at' => $started_at]
         ]);
@@ -91,36 +93,36 @@ class ReadingProgressController extends Controller
         ]);
     }
 
-    public function finish_reading(Request $request, Book $book)
+    public function updateFinishedReading(Request $request)
     {
         $user = $request->user();
-        $finished_at = now();
+        $bookId = $request->input('book_id');
+        $book = Book::find($bookId);
 
-        $reading_progress = $user->readingProgress()->where('book_id', $book->id)->first();
-
-        if (!$reading_progress) {
-            return response()->json([
-                'message' => 'Reading progress not found!'
-            ], 404);
+        if (!$book) {
+            return response()->json(['error' => 'Book not found.'], 404);
         }
 
-        // Calculate reading duration
-        $reading_duration = Carbon::parse($reading_progress->started_reading_at)
-            ->diffInDays($finished_at);
-
-        // Update reading progress with reading duration
-        $reading_progress->update([
-            'finished_reading_at' => $finished_at,
-            'reading_duration' => $reading_duration
+        // Update finished_reading_at timestamp
+        $finishedAt = Carbon::now();
+        $user->books()->syncWithoutDetaching([
+            $book->id => ['finished_reading_at' => $finishedAt]
         ]);
 
+        // Calculate reading duration attributes
+        $startedAt = $user->books()->where('books.id', $bookId)->first()->pivot->started_reading_at;
+        $readingDuration = $finishedAt->diffInSeconds($startedAt);
+        $readingDurationInDays = $book->getReadingDurationInDaysAttribute();
+
+        // Increase reading rank
         $user->increaseReadingRankOnFinish($book);
 
         return response()->json([
             'message' => 'Finished reading book',
             'book' => $book->title,
-            'finished_reading_at' => $finished_at,
-            'reading_duration' => $reading_duration . ' days'
+            'finished_reading_at' => $finishedAt,
+            'reading_duration' => $readingDuration,
+            'reading_duration_in_days' => $readingDurationInDays
         ]);
     }
 }

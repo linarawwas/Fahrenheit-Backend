@@ -18,5 +18,13 @@ class ReadingStreak extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function incrementStreak($user_id) {
+        $streak = self::where('user_id', $user_id)->value('streak');
+        $streak++;
+        self::where('user_id', $user_id)->update(['streak' => $streak]);
+        $user = User::findOrFail($user_id);
+        $user->updateRankIfStreakIsMultipleOfFive($streak);
+    }
+    
     
 }
