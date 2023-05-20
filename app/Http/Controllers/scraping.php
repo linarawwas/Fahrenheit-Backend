@@ -10,8 +10,8 @@ class scraping extends Controller
 {
     public function scrapeBooks(Request $request)
     {
-        $startId = 1;
-        $endId = 6;
+        $startId = 67;
+        $endId = 100;
 
         $books = [];
 

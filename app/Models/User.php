@@ -78,4 +78,11 @@ class User extends Authenticatable
 
         return $this;
     }
+    public function updateRankIfStreakIsMultipleOfFive($streak) {
+        if ($streak % 5 === 0) {
+            $this->reading_rank += 3;
+            $this->save();
+        }
+    }
+    
 }

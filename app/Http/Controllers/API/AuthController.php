@@ -28,10 +28,12 @@ class AuthController extends Controller
             ], 401);
         }
         return response()->json([
+            'user_id' => $user->id,
             'user' => $user,
             'authorization' => [
                 'token' => $user->createToken('ApiToken')->plainTextToken,
                 'type' => 'bearer',
+                'user' => $user,
             ]
         ]);
     }

@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Note;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NotesController extends Controller
@@ -11,6 +13,8 @@ class NotesController extends Controller
      */
     public function addNote(Request $request)
     {
+        $user = $request->user();
+
         $validatedData = $request->validate([
             'text' => 'required|string|max:255',
             'book_id' => 'required|exists:books,id',
@@ -19,6 +23,10 @@ class NotesController extends Controller
         $note = new Note($validatedData);
         $note->user_id = $request->user()->id;
         $note->save();
+
+        // Increment reading rank by 2
+        $user->reading_rank += 2;
+        $user->save();
 
         return response()->json(['note' => $note]);
     }
@@ -44,7 +52,7 @@ class NotesController extends Controller
      */
     public function viewAllNotes(Request $request)
     {
-        $notes = Note::where('user_id', $request->user()->id)->get();
+        $notes = Note::with('user', 'book')->get();
         return response()->json(['notes' => $notes]);
     }
 

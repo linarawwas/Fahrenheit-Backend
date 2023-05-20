@@ -13,7 +13,6 @@ class ReadingProgressController extends Controller
 {
     public function getReadingProgress(Request $request)
     {
-        // $user = Auth::user();
         $user = $request->user();
 
         $readingProgress = $user->readingProgress()->get();
@@ -25,7 +24,6 @@ class ReadingProgressController extends Controller
 
     public function readToday(Request $request)
     {
-        // $user = Auth::user();
         $user = $request->user();
 
         $streak = $user->readingStreaks()->latest()->first();
