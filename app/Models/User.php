@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\SecretVault;
 
 class User extends Authenticatable
 {
@@ -93,4 +94,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(SecretAttic::class, 'user_id');
     }
+    public function secretVault()
+{
+    return $this->hasOne(SecretVault::class);
+}
+
 }

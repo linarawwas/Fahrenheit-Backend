@@ -6,6 +6,7 @@ use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ReadingProgressController;
 use App\Http\Controllers\scraping;
 use App\Http\Controllers\SecretAtticController;
+use App\Http\Controllers\SecretBooksController;
 use App\Http\Controllers\StreakController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -96,3 +97,11 @@ Route::get('/notes/book/{book}', [NotesController::class, 'viewNotesByBook'])->m
 //  delete note by note id
 Route::delete('/notes/{id}', [NotesController::class, 'deleteNote'])
     ->middleware('auth:sanctum');
+
+Route::post('/secret-books', [SecretBooksController::class, 'store'])->name('secret-books.store')->middleware('auth:sanctum');
+Route::post('/secret-books/multiple', [SecretBooksController::class, 'storeMultiple'])->name('secret-books.storeMultiple')->middleware('auth:sanctum');
+Route::put('/secret-books/price', [SecretBooksController::class, 'updatePrice'])->middleware('auth:sanctum');
+Route::post('/secret-books/purchase-book', [SecretBooksController::class, 'purchaseBook'])->middleware('auth:sanctum');
+Route::get('/secret-books', [SecretBooksController::class, 'getAllBooks'])->middleware('auth:sanctum');
+Route::get('/user/secret-vault/books', [SecretBooksController::class, 'getUserSecretVaultBooks'])->middleware('auth:sanctum');
+Route::delete('/secret-books', [SecretBooksController::class, 'deleteAllSecretBooks'])->middleware('auth:sanctum');
