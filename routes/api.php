@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ReadingProgressController;
-use App\Http\Controllers\BookController;
+use App\Http\Controllers\scraping;
+use App\Http\Controllers\SecretAtticController;
 use App\Http\Controllers\StreakController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -38,7 +40,11 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 // This route retrieves all users and requires authentication with Sanctum
-Route::get('/users', [UserController::class, 'viewUsers'])->middleware('auth:sanctum')->middleware('auth:sanctum');
+Route::get('/users', [UserController::class, 'viewUsers'])->middleware('auth:sanctum');
+Route::get('/user/username', [UserController::class, 'getUsername'])->middleware('auth:sanctum');
+Route::get('/user/profile-picture', [UserController::class, 'getProfilePicture'])->middleware('auth:sanctum');
+Route::put('/user', [UserController::class, 'update'])->middleware('auth:sanctum');
+Route::get('/user/readingrank', [UserController::class, 'getReadingRank'])->middleware('auth:sanctum');
 
 // This route retrieves all users and requires authentication with Sanctum
 Route::get('/profile', [UserController::class, 'getAuthenticatedUser'])->middleware('auth:sanctum');
@@ -49,10 +55,16 @@ Route::post('/books', [BookController::class, 'store'])->middleware('auth:sanctu
 // This route retrieves all books from the database
 Route::get('/books', [BookController::class, 'getall'])->middleware('auth:sanctum');
 Route::get('books/random', [BookController::class, 'getRandom'])->middleware('auth:sanctum');
-Route::put('/books/increment-rating',[BookController::class, 'incrementRating'])->middleware('auth:sanctum');
+Route::put('/books/increment-rating', [BookController::class, 'incrementRating'])->middleware('auth:sanctum');
+
+Route::post('/secret-attic/add-book', [SecretAtticController::class, 'addToSecretAttic'])->middleware('auth:sanctum');
+Route::get('secret-attic/books', [SecretAtticController::class, 'viewBooks'])->middleware('auth:sanctum');
+Route::get('/secret-attic/book-urls', [SecretAtticController::class, 'viewBookUrls'])->middleware('auth:sanctum');
+// Route::get('/secret-attic', [SecretAtticController::class, 'index'])->middleware('auth:sanctum');
 
 // This route scrapes a website to get books and store them in the database
-Route::get('scrape-books', 'App\Http\Controllers\scraping@scrapeBooks');
+Route::get('scrape-books', [scraping::class, 'scrapeBooks'])->middleware('auth:sanctum');
+Route::get('/secret-attic/scrape-page-contents', [scraping::class, 'scrapePageContents'])->middleware('auth:sanctum');
 
 // This route starts a new reading progress for a user and a book
 Route::post('/readingprogress/start-reading', [ReadingProgressController::class, 'start_reading'])->middleware('auth:sanctum');

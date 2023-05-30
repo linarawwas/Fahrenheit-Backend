@@ -11,39 +11,29 @@ class StreakController extends Controller
     public function getStreak(Request $request)
     {
         $user = $request->user();
-        $streak = $user->readingStreaks()->latest()->first();
-        $currentStreak = 0;
-        $longestStreak = $streak->longest_streak;
 
-        // check if there is a streak
-        if ($streak) {
-            $lastReadingDay = Carbon::parse($streak->last_reading_day);
+        // Retrieve the streak
+        $streak = $user->readingStreak()->first();
 
-            // check if last reading day is yesterday
-            if ($lastReadingDay->eq(Carbon::yesterday())) {
-                $currentStreak = $streak->streak + 1;
+        // If there is no existing streak, create a new one
+        if (!$streak) {
+            $streak = new ReadingStreak([
+                'last_reading_day' => Carbon::now()->toDateString(),
+                'streak' => 1,
+                'longest_streak' => 1
+            ]);
+            $user->readingStreak()->save($streak);
+        } else {
+            // Update the longest_streak if streak is greater
+            if ($streak->streak > $streak->longest_streak) {
+                $streak->longest_streak = $streak->streak;
+                $streak->save();
             }
         }
 
-        // update the streak table with new reading day
-        $user->readingStreaks()->updateOrCreate(
-            ['id' => $streak ? $streak->id : null],
-            [
-                'last_reading_day' => Carbon::now()->toDateString(),
-                'streak' => $currentStreak,
-                'longest_streak' => max($currentStreak, $longestStreak)
-            ]
-        );
-
-        // update reading rank if current streak is a multiple of 5
-        if ($currentStreak % 5 == 0) {
-            $user->update(['reading_rank' => $user->reading_rank + 3]);
-        }
-
         return response()->json([
-            'message' => 'Streak updated!',
-            'current_streak' => $currentStreak,
-            'longest_streak' => max($currentStreak, $longestStreak)
+            'current_streak' => $streak->streak,
+            'longest_streak' => $streak->longest_streak
         ]);
     }
 }

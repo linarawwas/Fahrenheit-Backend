@@ -27,15 +27,16 @@ class ReadingProgressController extends Controller
     {
         $user = $request->user();
 
-        $streak = $user->readingStreaks()->latest()->first();
+        $streak = $user->readingStreak()->latest()->first();
 
         // If there is no existing streak, create a new one
         if (!$streak) {
             $streak = new ReadingStreak([
                 'last_reading_day' => Carbon::now()->toDateString(),
-                'streak' => 1
+                'streak' => 1,
+                'longest_streak' => 1
             ]);
-            $user->readingStreaks()->save($streak);
+            $user->readingStreak()->save($streak);
             return response()->json([
                 'message' => 'New streak created!',
                 'streak' => $streak->streak

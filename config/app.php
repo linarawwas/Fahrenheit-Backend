@@ -164,11 +164,14 @@ return [
         /*
          * Application Service Providers...
          */
+        App\Providers\GoutteServiceProvider::class,
+
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        
     ])->toArray(),
 
     /*
@@ -184,6 +187,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        // 'Goutte' => Symfony\Component\BrowserKit\HttpBrowser::class,
+
     ])->toArray(),
 
 ];

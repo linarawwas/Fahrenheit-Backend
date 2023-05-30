@@ -19,8 +19,9 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('picture')->nullable();
             $table->integer('reading_rank')->default(0);
-            $table->integer('current_reading_streak')->default(0);
-            $table->integer('longest_reading_streak')->default(0);
+            $table->integer('current_reading_streak')->nullable();
+            $table->integer('longest_reading_streak')->nullable();
+
             $table->timestamps();
         });
     }
