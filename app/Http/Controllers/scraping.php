@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 // use GuzzleHttp\Client;
 // use Illuminate\Http\Request;
+use App\Models\Book;
 use Goutte\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\DomCrawler\Crawler;
 
 class scraping extends Controller
 {
     // public function scrapeBooks(Request $request)
     // {
-    //     $user = Auth::user();
+    // $user = Auth::user();
 
     //     $startId = 67;
     //     $endId = 100;
@@ -67,6 +70,49 @@ class scraping extends Controller
     //     return response()->json($books);
     // }
 
+    public function BrowseBook(Request $request)
+    {
+        $user = Auth::user();
+
+        $bookId = $request->input('book_id');
+
+        // Retrieve the book URL based on the provided book ID
+        $book = DB::table('books')->where('id', $bookId)->first();
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+        $bookUrl = $book->url;
+
+        // Create a new Goutte client
+        $client = new Client();
+
+        // Send a GET request to the book URL and retrieve the page contents
+        $crawler = $client->request('GET', $bookUrl);
+
+        // Find the starting node based on the specified path
+        $startingNode = $crawler->filter('html > body > .pg-boilerplate.pgheader')->first();
+
+        if (!$startingNode->count()) {
+            return response()->json(['page_contents' => 'Starting node not found'], 404);
+        }
+
+        // Get the following siblings of the starting node within the same parent node
+        $filteredNodes = $startingNode->siblings();
+
+        // Filter the nodes to include only those after the starting node
+        $filteredNodes = $filteredNodes->nextAll();
+
+        // Extract the HTML contents of the filtered nodes
+        $pageContents = $filteredNodes->each(function ($node) {
+            return $node->getNode(0)->C14N();
+        });
+
+        // Concatenate the extracted HTML contents
+        $responseContents = implode("\n", $pageContents);
+
+        // Return the page contents as the response
+        return response()->json(['page_contents' => $responseContents], 200);
+    }
 
     public function scrapePageContents()
     {

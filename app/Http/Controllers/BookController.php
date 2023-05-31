@@ -14,6 +14,13 @@ class BookController extends Controller
         return response()->json($books);
     }
 
+    function getRandomBooks()
+    {
+        $books = Book::inRandomOrder()->take(6)->get();
+
+        return $books;
+    }
+
     public function getRandom(Request $request)
     {
         $user = $request->user();

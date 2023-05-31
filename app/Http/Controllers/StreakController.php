@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
-class StreakController extends Controller
+use App\Models\ReadingStreak;
+    class StreakController extends Controller
 {
     public function getStreak(Request $request)
     {

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ReadingStreak;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -39,44 +41,66 @@ class AuthController extends Controller
             ]
         ]);
     }
-
     public function register(Request $request)
     {
-        $request->validate([
-            'username' => 'required|unique:users',
-            'password' => 'required',
-            'email' => 'required|email|unique:users',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            $request->validate([
+                'username' => 'required|unique:users',
+                'password' => 'required',
+                'email' => 'required|email|unique:users',
+                'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        $user = new User();
-        $user->username = $request->username;
-        $user->password = bcrypt($request->password);
-        $user->email = $request->email;
-        if ($request->hasFile('profile_picture')) {
-            $profilePicture = $request->file('profile_picture');
-            $profilePicturePath = time() . '.' . $profilePicture->extension();
+            $email = $request->email;
 
-            $profilePicture->move(public_path('profile_picture'), $profilePicturePath);
+            // Check if the email is valid using Mailboxlayer API
+            $response = Http::get('http://apilayer.net/api/check', [
+                'access_key' => 'ca5aa27e3c13cee1304b031599ba9a92',
+                'email' => $email,
+            ]);
 
-            $user->profile_picture = $profilePicturePath;
+            if ($response->failed()) {
+                throw new \Exception('Failed to validate email. Please try again.');
+            }
+
+            $result = $response->json();
+
+            if (isset($result['success']) && !$result['success']) {
+                throw new \Exception('Email validation failed. Reason: ' . $result['error']['info']);
+            }
+
+            if (!isset($result['format_valid']) || !$result['format_valid'] || !$result['smtp_check']) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided email is invalid or does not exist.'],
+                ]);
+            }
+
+            // Save the user record
+            $user = new User();
+            $user->username = $request->input('username');
+            $user->password = bcrypt($request->input('password'));
+            $user->email = $request->input('email');
+            if ($request->hasFile('profile_picture')) {
+                $profilePicture = $request->file('profile_picture');
+                $profilePicturePath = time() . '.' . $profilePicture->extension();
+                $profilePicture->move(public_path('profile_picture'), $profilePicturePath);
+                $user->profile_picture = $profilePicturePath;
+            }
+            $user->save();
+
+            // Create a reading streak for the newly registered user
+            $streak = new ReadingStreak([
+                'last_reading_day' => Carbon::now()->toDateString(),
+                'streak' => 1,
+                'longest_streak' => 1,
+            ]);
+
+            $user->readingStreak()->save($streak);
+
+            return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        $user->save();
-        // Create a reading streak for the newly registered user
-        $user = User::create([
-            'username' => $request->input('username'),
-            'email' => $request->input('email'),
-            // Set other user attributes...
-        ]);
-
-        $streak = new ReadingStreak([
-            'last_reading_day' => Carbon::now()->toDateString(),
-            'streak' => 1,
-            'longest_streak' => 1,
-        ]);
-
-        $user->readingStreak()->save($streak);
-        return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
     }
 
     public function logout()

@@ -103,12 +103,36 @@ class UserController extends Controller
         return response()->json(['message' => 'User not found'], 404);
     }
 
-    public function delete($id)
+    public function softDelete(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = Auth::user();
 
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        // Check if the user ID in the request matches the authenticated user's ID
+        if ($request->input('id') !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Soft delete the user
         $user->delete();
 
         return response()->json(['message' => 'User soft deleted successfully'], 200);
+    }
+
+    public function deleteUser(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer',
+        ]);
+
+        $userIds = $request->input('ids');
+
+        User::whereIn('id', $userIds)->forceDelete();
+
+        return response()->json(['message' => 'Users permanently deleted'], 200);
     }
 }
