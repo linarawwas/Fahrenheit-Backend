@@ -9,7 +9,6 @@ class CreateSecretAtticsTable extends Migration
     {
         Schema::create('secret_attics', function (Blueprint $table) {
             $table->id();
-            // $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('user_id')->unique();
             $table->foreignId('book_id')->nullable()->constrained('books')->onDelete('cascade');
 

@@ -105,15 +105,10 @@ class ReadingProgressController extends Controller
         }
 
         // Update finished_reading_at timestamp
-        $finishedAt = Carbon::now();
+        $finishedAt = Carbon::now()->toDateString();  // Get the date instance in YYYY-MM-DD format
         $user->books()->syncWithoutDetaching([
             $book->id => ['finished_reading_at' => $finishedAt]
         ]);
-
-        // Calculate reading duration attributes
-        $startedAt = $user->books()->where('books.id', $bookId)->first()->pivot->started_reading_at;
-        $readingDuration = $finishedAt->diffInSeconds($startedAt);
-        $readingDurationInDays = $book->getReadingDurationInDaysAttribute();
 
         // Increase reading rank
         $user->increaseReadingRankOnFinish($book);
@@ -121,9 +116,7 @@ class ReadingProgressController extends Controller
         return response()->json([
             'message' => 'Finished reading book',
             'book' => $book->title,
-            'finished_reading_at' => $finishedAt,
-            'reading_duration' => $readingDuration,
-            'reading_duration_in_days' => $readingDurationInDays
+            'finished_reading_at' => $finishedAt
         ]);
     }
 }

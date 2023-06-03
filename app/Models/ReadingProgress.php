@@ -38,8 +38,12 @@ class ReadingProgress extends Model
 
     public function getReadingDurationInDaysAttribute()
     {
-        $startedAt = Carbon::parse($this->started_reading_at);
-        $finishedAt = Carbon::parse($this->finished_reading_at);
-        return $startedAt->diffInDays($finishedAt);
+        if ($this->started_reading_at && $this->finished_reading_at) {
+            $startedAt = Carbon::parse($this->started_reading_at);
+            $finishedAt = Carbon::parse($this->finished_reading_at);
+            return $startedAt->diffInDays($finishedAt);
+        }
+
+        return null;
     }
 }

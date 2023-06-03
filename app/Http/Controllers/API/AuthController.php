@@ -51,29 +51,29 @@ class AuthController extends Controller
                 'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            $email = $request->email;
+            // $email = $request->email;
 
             // Check if the email is valid using Mailboxlayer API
-            $response = Http::get('http://apilayer.net/api/check', [
-                'access_key' => 'ca5aa27e3c13cee1304b031599ba9a92',
-                'email' => $email,
-            ]);
+            // $response = Http::get('http://apilayer.net/api/check', [
+            //     'access_key' => 'ca5aa27e3c13cee1304b031599ba9a92',
+            //     'email' => $email,
+            // ]);
 
-            if ($response->failed()) {
-                throw new \Exception('Failed to validate email. Please try again.');
-            }
+            // if ($response->failed()) {
+            //     throw new \Exception('Failed to validate email. Please try again.');
+            // }
 
-            $result = $response->json();
+            // $result = $response->json();
 
-            if (isset($result['success']) && !$result['success']) {
-                throw new \Exception('Email validation failed. Reason: ' . $result['error']['info']);
-            }
+            // if (isset($result['success']) && !$result['success']) {
+            //     throw new \Exception('Email validation failed. Reason: ' . $result['error']['info']);
+            // }
 
-            if (!isset($result['format_valid']) || !$result['format_valid'] || !$result['smtp_check']) {
-                throw ValidationException::withMessages([
-                    'email' => ['The provided email is invalid or does not exist.'],
-                ]);
-            }
+            // if (!isset($result['format_valid']) || !$result['format_valid'] || !$result['smtp_check']) {
+            //     throw ValidationException::withMessages([
+            //         'email' => ['The provided email is invalid or does not exist.'],
+            //     ]);
+            // }
 
             // Save the user record
             $user = new User();

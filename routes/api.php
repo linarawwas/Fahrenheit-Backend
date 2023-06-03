@@ -65,8 +65,8 @@ Route::put('/books/increment-rating', [BookController::class, 'incrementRating']
 Route::post('/secret-attic/add-book', [SecretAtticController::class, 'addToSecretAttic'])->middleware('auth:sanctum');
 Route::get('secret-attic/books', [SecretAtticController::class, 'viewBooks'])->middleware('auth:sanctum');
 Route::get('/secret-attic/book-urls', [SecretAtticController::class, 'viewBookUrls'])->middleware('auth:sanctum');
-// Route::get('/secret-attic', [SecretAtticController::class, 'index'])->middleware('auth:sanctum');
-
+Route::get('/secret-attic/count', [SecretAtticController::class, 'countBooks'])->middleware('auth:sanctum');
+Route::put('/secret-attic/burn', [SecretAtticController::class, 'markBookReceived'])->middleware('auth:sanctum');
 // This route scrapes a website to get books and store them in the database
 Route::get('scrape-books', [scraping::class, 'scrapeBooks'])->middleware('auth:sanctum');
 Route::get('/secret-attic/scrape-page-contents', [scraping::class, 'scrapePageContents'])->middleware('auth:sanctum');
