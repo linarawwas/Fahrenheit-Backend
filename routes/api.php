@@ -56,7 +56,9 @@ Route::get('/profile', [UserController::class, 'getAuthenticatedUser'])->middlew
 Route::post('/books', [BookController::class, 'store'])->middleware('auth:sanctum');;
 
 // This route retrieves all books from the database
-Route::get('/books', [BookController::class, 'getall'])->middleware('auth:sanctum');
+// Route::get('/books', [BookController::class, 'getall'])->middleware('auth:sanctum');
+Route::get('/books', [BookController::class, 'getall']);
+
 Route::get('books/random', [BookController::class, 'getRandom'])->middleware('auth:sanctum');
 Route::get('books/randomCollection', [BookController::class, 'getRandomBooks'])->middleware('auth:sanctum');
 

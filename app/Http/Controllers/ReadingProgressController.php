@@ -16,7 +16,9 @@ class ReadingProgressController extends Controller
     {
         $user = $request->user();
 
-        $readingProgress = $user->readingProgress()->get();
+        $readingProgress = $user->readingProgress()
+            ->with('book')
+            ->get();
 
         return response()->json([
             'reading_progress' => $readingProgress

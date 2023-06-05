@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateBooksTable extends Migration
 {
-    /**
+    /**                                                             
      * Run the migrations.
      *
      * @return void
