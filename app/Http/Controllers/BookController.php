@@ -9,7 +9,6 @@ class BookController extends Controller
 {
     public function getall()
     {
-        dd("zeinab");
         $books = Book::all();
 
         return response()->json($books);
